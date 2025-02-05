@@ -1,45 +1,60 @@
-import NextAuth from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import bcrypt from 'bcrypt';
-import postgres from 'postgres';
-import { z } from 'zod';
-import type { User } from '@/app/lib/definitions';
-import { authConfig } from './auth.config';
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcrypt";
+import { z } from "zod";
+import { prisma } from "@/app/lib/prisma"; // Assure-toi que ce chemin est correct
+import type { User } from "@/app/lib/definitions"; // Assure-toi que le type User est bien défini
+import { authConfig } from "./auth.config";
 
-const sql = postgres(process.env.POSTGRES_URL!, { ssl: 'require' });
-
-async function getUser(email: string): Promise<User | undefined> {
+async function getUser(email: string): Promise<User | null> {
   try {
-    const user = await sql<User[]>`SELECT * FROM users WHERE email=${email}`;
-    return user[0];
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+    return user;
   } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
+    console.error("Failed to fetch user:", error);
+    return null;
   }
 }
 
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
   providers: [
-    Credentials({
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Mot de passe", type: "password" },
+      },
       async authorize(credentials) {
+        if (!credentials) throw new Error("Les informations d'identification sont manquantes.");
+
+        // Validation avec zod
         const parsedCredentials = z
-          .object({ email: z.string().email(), password: z.string().min(6) })
+          .object({
+            email: z.string().email({ message: "Email invalide." }),
+            password: z.string().min(6, { message: "Le mot de passe doit comporter au moins 6 caractères." }),
+          })
           .safeParse(credentials);
 
-        if (parsedCredentials.success) {
-          const { email, password } = parsedCredentials.data;
-
-          const user = await getUser(email);
-          if (!user) return null;
-
-          const passwordsMatch = await bcrypt.compare(password, user.password);
-          if (passwordsMatch) return user;
+        if (!parsedCredentials.success) {
+          throw new Error(parsedCredentials.error.errors.map((e) => e.message).join(", "));
         }
 
-        console.log('Invalid credentials');
-        return null;
+        const { email, password } = parsedCredentials.data;
+
+        // Récupération de l'utilisateur
+        const user = await getUser(email);
+        if (!user) throw new Error("Utilisateur introuvable.");
+
+        // Vérification du mot de passe
+        const passwordsMatch = await bcrypt.compare(password, user.password);
+        if (!passwordsMatch) throw new Error("Mot de passe incorrect.");
+
+        return user;
       },
     }),
   ],
+  secret: process.env.NEXTAUTH_SECRET, // Ajoute cette variable dans ton fichier .env
 });
