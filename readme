@@ -1,0 +1,8 @@
+Note :
+
+Tailwind est un Framework css
+alternatives : les modules css
+Utilisation de la bibliotheque clsx pour modifier la valeur des classe de maniere conditionnel
+
+police personnalise par rapport a la police par defaut des navigateur web
+avec next les composant sont cote serveur par defaut
