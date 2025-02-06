@@ -1,56 +1,23 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { authConfig } from './auth.config';
-import { getToken } from 'next-auth/jwt';
-
-
-// Configuration des rôles et des routes
-const roleRoutes: { [key: string]: string[] } = {
-  '/dashboard/admin': ['Admin'],
-  '/dashboard/teacher': ['Teacher'],
-  '/dashboard/student': ['Student'],
-};
-
-type Token = {
-  role?: "admin" | "eleve" | "professeur"; // Rôles autorisés
-  email?: string;
-  name?: string;
-};
-
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET }) as Token;
+  // ✅ Ne pas intercepter NextAuth
+  if (req.nextUrl.pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
 
-  console.log("Token récupéré :", token); // Débogage
-  console.log("Role de l'utilisateur :", token?.role);
+  const token = (await getToken({ req, secret: process.env.NEXTAUTH_SECRET })) as any;
 
   if (!token) {
-    console.log("Utilisateur non authentifié, redirection vers login");
-    return NextResponse.redirect(new URL('/login', req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  const userRole = token?.role;
-
-  if (!userRole) {
-    console.log("Utilisateur sans rôle, redirection vers login");
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
-
-  const pathname = req.nextUrl.pathname;
-  for (const route in roleRoutes) {
-    if (pathname.startsWith(route)) {
-      if (!roleRoutes[route].includes(userRole)) {
-        console.log(`Rôle non autorisé pour ${pathname}, redirection vers /403`);
-        return NextResponse.redirect(new URL('/403', req.url));
-      }
-    }
-  }
-
-  console.log("Utilisateur autorisé, accès à la page accordé");
   return NextResponse.next();
 }
 
-
+// ✅ Appliquer la middleware uniquement aux pages du dashboard
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ["/dashboard/:path*"],
 };

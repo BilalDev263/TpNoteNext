@@ -23,14 +23,15 @@ model User {
 }
 
 model Course {
-  id          String @id @default(uuid())
+  id          String   @id @default(cuid())
   title       String
   description String
   instrument  String
-  teacherId   String
   level       String
+  teacherId   String
   schedule    String
   capacity    Int
+  createdAt   DateTime @default(now())
 
   // Relation avec le professeur
   teacher User @relation("TeacherCourses", fields: [teacherId], references: [id])

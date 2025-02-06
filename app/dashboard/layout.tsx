@@ -1,9 +1,8 @@
 import SideNav from "@/app/ui/dashboard/sidenav";
-import { auth } from "@/auth"; // ✅ Utilisation de `auth()` au lieu de `getServerSession()`
-import { Session } from "next-auth"; // ✅ Import du type Session
+import { auth } from "@/auth";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const session: Session | null = await auth(); // ✅ Utilisation de `auth()` (remplace `getServerSession()`)
+  const session = await auth();
   const userRole = session?.user?.role || "eleve"; // ✅ Sécurisation du rôle
 
   return (

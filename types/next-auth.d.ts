@@ -10,13 +10,10 @@ declare module "next-auth" {
 
   interface Session {
     user: User; // ✅ Correction de `Session`
-    expires: string;
   }
 
-
-
-
   interface JWT {
-    role: "admin" | "eleve" | "professeur"; // ✅ Ajout du rôle dans le token JWT
+    id: string; // ✅ Ajout de l'ID pour éviter l'erreur `undefined`
+    role: "admin" | "eleve" | "professeur";
   }
 }

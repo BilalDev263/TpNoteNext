@@ -12,12 +12,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (status === "authenticated") {
-      if (session?.user.role === "admin") {
-        router.push("/dashboard/admin");
-      } else if (session?.user.role === "professeur") {
-        router.push("/dashboard/teacher");
+      // ✅ Redirige vers le bon tableau de bord
+      const role = session?.user?.role;
+      if (role === "admin") {
+        router.replace("/dashboard/admin");
+      } else if (role === "professeur") {
+        router.replace("/dashboard/teacher");
       } else {
-        router.push("/dashboard/student");
+        router.replace("/dashboard/student");
       }
     }
   }, [session, status, router]);
