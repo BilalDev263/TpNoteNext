@@ -4,7 +4,7 @@ export type User = {
   name: string;
   email: string;
   password: string;
-  role: "eleve" | "professeur" | "admin"; // ✅ Rôles spécifiques
+  role:  "admin" | "eleve" | "professeur" ; // ✅ Rôles spécifiques
 };
 
 // Types pour les cours

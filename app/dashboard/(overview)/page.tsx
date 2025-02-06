@@ -15,7 +15,7 @@ export default function DashboardPage() {
         const coursesData = await fetchCourses();
         setCourses(coursesData || []);
 
-        const enrollmentsData = await fetchEnrollments("student-id");
+        const enrollmentsData = await fetchEnrollments("student-id"); // Remplacez par l'ID de l'utilisateur connecté
         setEnrollments(enrollmentsData || []);
 
         setLoading(false);
@@ -36,6 +36,7 @@ export default function DashboardPage() {
     <main className="max-w-5xl mx-auto p-6">
       <h1 className="text-2xl font-semibold mb-4">Tableau de Bord</h1>
 
+      {/* Section Cours */}
       <section>
         <h2 className="text-xl font-semibold mt-6">Cours Disponibles</h2>
         <ul>
@@ -49,6 +50,7 @@ export default function DashboardPage() {
         </ul>
       </section>
 
+      {/* Section Inscriptions */}
       <section>
         <h2 className="text-xl font-semibold mt-6">Mes Inscriptions</h2>
         <ul>

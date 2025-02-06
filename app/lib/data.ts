@@ -23,7 +23,7 @@ export async function fetchEnrollments(studentId: string) {
       where: { studentId },
       include: {
         course: {
-          include: { teacher: true }, // Inclure les détails du professeur
+          include: { teacher: true },
         },
       },
     });
@@ -46,5 +46,17 @@ export async function enrollStudent(studentId: string, courseId: string) {
   } catch (error) {
     console.error("Erreur d'inscription :", error);
     throw new Error("Impossible d'inscrire l'élève.");
+  }
+}
+
+// ✅ Récupérer les utilisateurs par rôle
+export async function fetchUsersByRole(role: "admin" | "professeur" | "eleve") {
+  try {
+    return await prisma.user.findMany({
+      where: { role },
+    });
+  } catch (error) {
+    console.error("Erreur de récupération des utilisateurs :", error);
+    throw new Error("Impossible de récupérer les utilisateurs.");
   }
 }

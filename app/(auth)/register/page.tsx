@@ -48,7 +48,8 @@ export default function RegisterPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700">Rôle</label>
             <select name="role" className="border p-2 w-full">
-              <option value="user">Utilisateur</option>
+              <option value="eleve">Élève</option>
+              <option value="professeur">Professeur</option>
               <option value="admin">Admin</option>
             </select>
           </div>
